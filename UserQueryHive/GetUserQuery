@@ -1,0 +1,7 @@
+userQuery="a.class='$1'"
+for i in $@
+do
+        userQuery="($userQuery)OR(a.class='$i')"
+done
+echo $userQuery
+hive -e 'use mshaikh4; select "<TITLE>", a.title, "</TITLE><BODY>", a.body, "</BODY><CLASS>", a.class, "</CLASS><PAGESTAT>", a.pagestat, "</PAGESTAT>" from finalwebtable a where (${hiveconf:userQuery}) sort by pagestat DESC;' -hiveconf userQuery=$userQuery > ResultTable
