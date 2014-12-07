@@ -84,22 +84,29 @@ public class Classifier {
       //String[] topicsArray = topicsString[1].split("</?D>");
       String sum = "";
 
-      String[] textString = line.split("</?TEXT[^>]*>");
+      String[] textString = line.split("</?text[^>]*>");
+      String[] titleSplit = line.split("</?title[^>]*>"); 
 
+      String completeBodyString = "";
+      String completeTitleString = "";
       if (textString.length>1) {
-              String[] titleString = textString[1].split("</?TITLE[^>]*>");
-              String[] bodyString = textString[1].split("</?BODY[^>]*>");
-	      String completeTitleString = "";
-	      String completeBodyString = "";
+              //String[] titleString = textString[1].split("</?TITLE[^>]*>");
+              //String[] bodyString = textString[1].split("</?BODY[^>]*>");
+	      //String completeTitleString = "";
+	      //String completeBodyString = "";
 
-	      if (titleString.length>1) {
-		completeTitleString = titleString[1];
-	      } 
+	      //if (titleString.length>1) {
+		//completeTitleString = titleString[1];
+	      //} 
 	
-	      if (bodyString.length>1) {
-		completeBodyString = bodyString[1];
-	      }
+	      //if (bodyString.length>1) {
+		completeBodyString = textString[1];
+	      //}
+	}
 
+	if (titleSplit.length>1) {
+		completeTitleString = titleSplit[1];
+	}
               /**************************Title****************************/
                 StringTokenizer titleTokenizer = new StringTokenizer(completeTitleString);
                 while (titleTokenizer.hasMoreTokens()) {
@@ -112,7 +119,11 @@ public class Classifier {
 		  while (outerMapIterator.hasNext()) {
         	    String currentClass = outerMapIterator.next();
 		    if (dictionaryHashMap.get(currentClass).containsKey(nextToken)) {
-		      output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new Text(Integer.toString(dictionaryHashMap.get(currentClass).get(nextToken))));
+		      int termFrequency = dictionaryHashMap.get(currentClass).get(nextToken);
+		      int numberOfClasses = dictionaryHashMap.size();
+		      double probability = ((double)dictionaryHashMap.get(currentClass).get(nextToken))/((double)dictionaryHashMap.get(currentClass).get("TotalWords"));
+		      double logProbability = Math.log(probability);
+		      output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new Text(Integer.toString(termFrequency)));
 		      //output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><CLASS>"+currentClass+"</CLASS>"), new Text(Integer.toString(dictionaryHashMap.get(currentClass).get(nextToken))));
 		    } else {
 		      //output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new IntWritable(0));
@@ -133,15 +144,18 @@ public class Classifier {
                   while (outerMapIterator.hasNext()) {
                     String currentClass = outerMapIterator.next();
                     if (dictionaryHashMap.get(currentClass).containsKey(nextToken)) {
+		      int termFrequency = dictionaryHashMap.get(currentClass).get(nextToken);
+		      double probability = ((double)dictionaryHashMap.get(currentClass).get(nextToken))/((double)dictionaryHashMap.get(currentClass).get("TotalWords"));
+                      double logProbability = Math.log(probability); 
                       //output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new IntWritable(dictionaryHashMap.get(currentClass).get(nextToken)));
-		      output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new Text(Integer.toString(dictionaryHashMap.get(currentClass).get(nextToken))));
+		      output.collect(new Text("<TITLE>"+completeTitleString+"</TITLE><BODY>"+completeBodyString+"</BODY><CLASS>"+currentClass+"</CLASS>"), new Text(Integer.toString(termFrequency)));
 		    } else {
 
 		    } 
                 }
               }
 
-    }
+    
   }
  }
 
